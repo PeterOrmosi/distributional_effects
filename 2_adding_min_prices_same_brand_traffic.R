@@ -76,7 +76,7 @@ fnrollmean <- function (x) {
 
 
 
-setwd("c:/Users/User/OneDrive - University of East Anglia/UEA/RESEARCH/Distributional effects/Australia/Data/") 
+setwd("[]add_your_path_of_data]") 
 
 
 
@@ -197,7 +197,7 @@ save(weekly,file='weekly_mins_sb.Rda')
 weekly$Median.commuting.distance..kms. = weekly$Median.commuting.distance..kms./1.6
 weekly$Average.commuting.distance..kms. = weekly$Average.commuting.distance..kms./1.6
 
-traffic = read.csv('c:/Users/peter/OneDrive - University of East Anglia/UEA/RESEARCH/Distributional effects/Australia/Data/traffic/ave_sum_traffic_within_radius_21092023.csv')
+traffic = read.csv('c:/Users/peter/OneDrive - University of East Anglia/UEA/RESEARCH/Distributional effects/Australia/Data/traffic/traffic.csv')
 
 traffic$highway = ifelse(grepl('Hwy',traffic$full_address),1,0) # create highway dummy
 

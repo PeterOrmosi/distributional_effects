@@ -1,4 +1,5 @@
 
+
 library(matrixStats) 
 library(ggstatsplot)
 library(ggplot2)
@@ -21,20 +22,21 @@ library(interplot)
 library(doParallel)
 library(xlsx)
 
-setwd("c:/Users/peter/OneDrive - University of East Anglia/UEA/RESEARCH/Distributional effects/Australia/Data/") 
+setwd("[add_your_path_of_data]") 
 
 
-load(file='entry_data_nearest5_treat_traffic_rnr.Rda')
+load(file='exit_data_nearest5_treat_traffic_rnr.Rda')
+
 
 top_brand<-c('Coles Express','Caltex','Caltex Woolworths','7-Eleven') ## adding a dummy for top brand exitter
-db_entry2$top_brand<-ifelse((db_entry2$entrant %in% top_brand),1,0)
-
+db2$top_brand<-ifelse((db2$exitter %in% top_brand),1,0)
 
 gc()
-db_entry2$home_internet = db_entry2$Internet.accessed.from.dwelling.num/db_entry2$population
+db2$home_internet = db2$Internet.accessed.from.dwelling.num/db2$population
 
+# drop variables that cf cannot read
 to_drop = c('Number.of.employed.people.living.in.region..no..', 'Usual.Resident.Population', 'SA2.NAME', 'individuals', 'income', 'mean_ind_income', 'total.business.income.n', 'total.business.income', 'total.business.expense.n', 'total.business.expense', 'net.business.income.n', 'net.business.income', 'estimated.business.net.tax.n', 'estimated.business.net.tax', 'gross.rent.n', 'gross.rent', 'net.rent.n', 'net.rent', 'Not.stated.x', 'Internet.accessed.from.dwelling.num', 'Internet.not.accessed.from.dwelling.num', 'Not.stated.num', 'Not.stated.y', 'Not.applicable', 'Total')
-db_temp = db_entry2[ , !names(db_entry2) %in% to_drop] # dropping not used vars
+db_temp = db2[ , !names(db2) %in% to_drop] # dropping not used vars
 
 db_s<-db_temp[db_temp$year<2018,]
 db_s<-db_s[(abs(db_s$seq)<16),] # limiting to =/- 15 weeks
@@ -45,10 +47,10 @@ db_s$pm<-ifelse(db_s$seq>=0,1,0)
 
 names(db_s)
 
-vars1 = c("treat", "id", "pm", "margin_u_ds")  
+vars1 = c("treat", "id", "pm", "margin_u_ds")  # main vars
 vars2 = c('year', 'gini_coefficient', 'top_1p', 'top_5p', 'top_10p', 'lowest_quart', 'second_quart', 'third_quart', 'highes_quart', 'Average.commuting.distance..kms.', 'Interquartile.range..kms.', 'Standard.deviation..kms.', 'earners', 'age_earners', 'sum_income', 'mean_income', 'mean_total_business_income', 'mean_total_business_expense', 'mean_net_business_income', 'mean_estimated_business_tax', 'mean_gross_rent', 'mean_net_rent', 'Internet.accessed.from.dwelling', 'Internet.not.accessed.from.dwelling', 'A8599', 'A04', 'A10', 'A15', 'A20', 'A25', 'A30', 'A35', 'A40', 'A45', 'A50', 'A55', 'A59', 'A60', 'A65', 'A70', 'A75', 'A80', 'A65PLUS', 'A35_65', 'A15_35', 'A0_15', 'population', 'Advanced.Diploma.and.Diploma.Level', 'Bachelor.Degree.Level', 'Certificate.I...II.Level', 'Certificate.III...IV.Level', 'Certificate.Level', 'Certificate.Level..nfd', 'Graduate.Diploma.and.Graduate.Certificate.Level', 'Postgraduate.Degree.Level', 'IEO', 'IER', 'IRSAD', 'IRSD', 'average_rent', 'X1_74', 'X100_124', 'X125_149', 'X150_174', 'X175_199', 'X200_224', 'X225_249', 'X250_274', 'X275_299', 'X300_324', 'X325_349', 'X350_374', 'X375_399', 'X400_424', 'X425_449', 'X450_549', 'X550_649', 'X650_749', 'X75_99', 'X750_849', 'X850_949', 'X950.and.over', 'Nil.payments', 'Train', 'Bus', 'Ferry', 'Tram', 'Taxi', 'Car.as.driver', 'Car.as.passenger', 'Truck', 'Motorbike.scooter', 'Bicycle', 'Walked.only', 'Worked.at.home', 'Did.not.go.to.work', 'None', 'one.motor.vehicle', 'two.motor.vehicles', 'three.motor.vehicles', 'four.or.more', 'average_no_cars',  'quarter', 'week', 'brand_size', 'competitors', 'top_brand', 'sb1mi', 'sb2mi', 'sb5mi','is_min_2km','is_max_2km','top_brand','lnincome', 'Index.of.Relative.Socio.economic.Disadvantage', 'Index.of.Relative.Socio.economic.Advantage.and.Disadvantage', 'Index.of.Economic.Resources', 'Index.of.Education.and.Occupation')
 
-db_s = db_s[(db_s$median_income > quantile(db_s$median_income, 0.05, na.rm=T))&(db_s$median_income < quantile(db_s$median_income, 0.95, na.rm=T)), ]
+db_s = db_s[(db_s$median_income > quantile(db_s$median_income, 0.05, na.rm=T))&(db_s$median_income < quantile(db_s$median_income, 0.95, na.rm=T)), ] # remove outliers
 
 db<-db_s[ , names(db_s) %in% vars1] # main variables
 db_var = db_s[ , names(db_s) %in% vars2] # all covariates
@@ -69,6 +71,7 @@ agg2 =  aggregate(agg[4], by=list(id = agg$id), FUN= difference)
 agg2 = left_join(agg2,agg[,1:3],by='id')
 agg2 = agg2[!duplicated(agg2$id),]
 
+# creating empty dfs
 
 preds = data.frame(matrix("", ncol = 0, nrow = nrow(agg2)))
 preds$id = agg2$id
@@ -84,11 +87,12 @@ ATE = list()
 ATT = list()
 ATEs = list()
 ATTs = list()
-sampling = 15
+sampling = 15 # number of covariates used in each iteration of the ensemble cf
+
+
 # the following loop randomly samples 'sampling' number of variables, and runs a causal forest on this subset of variables only
 
-
-for (i in 1:400){
+for (i in 1:200){
   gc()
   print(i)
   x1 <- as.integer(runif(15, 1, ncol(db_var)))
@@ -106,16 +110,16 @@ for (i in 1:400){
   X = scale(aggs[,c(5:ncol(aggs))])
   Y = scale(aggs$margin_u_ds)
   W = aggs$treat
-  # first stage 
+
   Y.forest = regression_forest(X, Y)
   Y.hat = predict(Y.forest)$predictions
   W.forest = regression_forest(X, W)
   W.hat = predict(W.forest)$predictions
   cf = causal_forest(X, Y, W,Y.hat = Y.hat , W.hat = W.hat)
-  tau.hat = as.data.frame(predict(cf)$predictions) # getting predicted TE
+  tau.hat = as.data.frame(predict(cf)$predictions)
   tau.hat$id = aggs$id
   preds = left_join(preds,tau.hat,by='id')
-  tau.hat = as.data.frame(predict(cf,estimate.variance=T)$variance.estimates) # getting predicted TE
+  tau.hat = as.data.frame(predict(cf,estimate.variance=T)$variance.estimates)
   tau.hat$id = aggs$id
   preds_var = left_join(preds_var,tau.hat,by='id')
   cf1<-cf %>% # creates a df of variable importances
@@ -124,18 +128,20 @@ for (i in 1:400){
     mutate(variable = colnames(cf$X.orig)) %>% 
     arrange(desc(V1)) 
   # getting income-competition combination first
-  source("c:/Users/peter/OneDrive - University of East Anglia/UEA/RESEARCH/Distributional effects/Australia/Data/r/newx_income_comp.R") # this newx file creates a df of the median of the four covariates of interest (income competition, commuting, internet)
+  source("[path]/newx_income_comp.R") # this newx file creates a df of the median of the four covariates of interest (income competition, commuting, internet)
   
   tau2 = predict(cf,newx,estimate.variance=T) # predicted tau using the estimated CF and median values of four main coefficients
   
   pred_tab = cbind(pred_tab,tau2$predictions)
   pred_tab_var = cbind(pred_tab_var,tau2$variance.estimates)
 
+  
   importance = left_join(importance,cf1,by='variable')
   ATE[[i]] = average_treatment_effect(cf,target.sample="overlap")[1]
   ATT[[i]] = average_treatment_effect(cf,target.sample="treated")[1]
   ATEs[[i]] = average_treatment_effect(cf,target.sample="overlap")[2]
   ATTs[[i]] = average_treatment_effect(cf,target.sample="treated")[2]
+
   }
 
 # after the loop, arrange the estimated ATE and att into a single df.
@@ -148,10 +154,12 @@ ATT2 = as.data.frame(do.call(rbind, ATTs))
 ATs = cbind(ATE2, ATT2)
 AT = cbind(AT,ATs)
 names(AT) = c('ate','att','ates','atts')
-save(AT,file='ATs_petrol_entry_rnr.Rda')
+save(AT,file='ATs_petrol_exit_rnr.Rda')
 
-# create a table of the averaged ATEs and ATTs (using a fixed effect meta study formula)
 
+# ATS
+
+# create a table of the averaged ATEs and ATTs
 AT$ATE_numerator = AT$ate * (1/AT$ates)
 AT$ATE_denominator = (1/AT$ates)
 ATE_es = round(sum(AT$ATE_numerator)/sum(AT$ATE_denominator),3)
@@ -162,13 +170,14 @@ AT$ATT_denominator = (1/AT$atts)
 ATT_es = round(sum(AT$ATT_numerator)/sum(AT$ATT_denominator),3)
 ATT_se = round(sqrt(1/sum(AT$ATT_denominator)),3)
 
-ATS_petrol_entry = as.data.frame(matrix(c(ATE_es,ATE_se,ATT_es,ATT_se),ncol=2))
-names(ATS_petrol_entry)=c('ATE','ATT')
-ATS_petrol_entry=round(ATS_petrol_entry,3)
-ATS_petrol_entry[2,]=paste0("(",ATS_petrol_entry[2,],")")
+ATS_petrol_exit = as.data.frame(matrix(c(ATE_es,ATE_se,ATT_es,ATT_se),ncol=2))
+names(ATS_petrol_exit)=c('ATE','ATT')
+ATS_petrol_exit=round(ATS_petrol_exit,3)
+ATS_petrol_exit[2,]=paste0("(",ATS_petrol_exit[2,],")")
 
-write.xlsx(ATS_petrol_entry,'ats_petrol_enrty_rnr.xlsx')           
-save(ATS_petrol_entry,file='ats_petrol_entry_rnr.Rda')
+write.xlsx(ATS_petrol_exit,'ats_petrol_exit_rnr.xlsx')           
+save(ATS_petrol_exit,file='ats_petrol_exit_rnr.Rda')
+
 
 # PREDICTION ROWMEAN
 
@@ -189,10 +198,10 @@ predictions = left_join(predictions,db_var_std,by='id')
 predictions = left_join(predictions,db_main_std,by='id')
 
 save(predictions,file='predictions_petrol_rnr.Rda')
+#save(importance,file='importance_petrol2.Rda')
 
-# IMPORTANCE 
 
-# creating a df of importance
+# IMPORTANCE creating a df of importance
 
 importance$rowmean = rowMeans(importance[2:ncol(importance)],na.rm=T)
 importance2 = importance[,c(1,ncol(importance))]
@@ -248,7 +257,6 @@ rownames(effects) = c('low competition','low competition se','z-score','high com
 
 effects
 
-write.xlsx(effects,'TE_income_comp_entry_rnr.xlsx')
-
+write.xlsx(effects,'TE_income_comp_rnr.xlsx')
 
 

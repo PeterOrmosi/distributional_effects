@@ -23,8 +23,9 @@ library(reshape2)
 library(geosphere)
 
 
-length(is.na(db_s$median_income))
-setwd("c:/Users/peter/OneDrive - University of East Anglia/UEA/RESEARCH/Distributional effects/Australia/Data/demographics") 
+# READING DATA
+
+setwd("[add_your_path_of_data]") 
 
 coding<-read.csv("Coding Index.csv")
 income<-read.csv("income_full3.csv")
@@ -44,7 +45,6 @@ commuting_means = read.csv('commute_mean_full.csv')
 
 
 
-setwd("c:/Users/peter/OneDrive - University of East Anglia/UEA/RESEARCH/Distributional effects/Australia/Data/") 
 
 df_temp<- read.csv(unz("petrol_data_wide_geo.zip", "petrol_data_wide_geo.csv"), header = TRUE,sep = ",")
 

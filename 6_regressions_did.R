@@ -20,7 +20,7 @@ library(plm)
 library(xlsx)
 
 
-setwd("c:/Users/peter/OneDrive - University of East Anglia/UEA/RESEARCH/Distributional effects/Australia/Data/") 
+setwd("[add_your_path_of_data]") 
 
 load(file='exit_data_nearest5_treat_traffic_rnr.Rda')
 
@@ -114,10 +114,7 @@ write.xlsx(table,file="2wls_income_comp_rnr.xlsx")
 
 load(file='entry_data_nearest5_treat_traffic_rnr.Rda')
 
-
-
 # preparing for regressions
-
 
 db_s<-db_entry2
 

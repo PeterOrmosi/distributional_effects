@@ -35,7 +35,7 @@ islarger<-function(x){
 }
 
 
-setwd("c:/Users/peter/OneDrive - University of East Anglia/UEA/RESEARCH/Distributional effects/Australia/Data/")
+setwd("[]add_your_path_of_data]") 
 
 
 
