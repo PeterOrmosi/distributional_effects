@@ -38,5 +38,5 @@ Main causal forest results (Section 5.3 in paper)
 
 Simulation example from Appendix
 
-
+Traffic_data
 The traffic_data folder shows how the traffic data was created from the original publicly available source file.
