@@ -144,7 +144,7 @@ list_57_5<-c("79",  "387", "442", "450", "674", "798",  "851",  "903",  "1014", 
 list_57_2<-c("409", "422", "856", "1198")
 list_57_1<-c("228", "497", "795", "943")
 
-register_google(key = "AIzaSyB8y5la_pBtXvFVbrJ3XHcxAlbDz25ab14")  ## change this to your API key
+register_google(key = "Your API key")  ## change this to your API key
 
 
 only_stations2<-only_stations[only_stations$panel2 %in% list_57,]
